@@ -4,49 +4,100 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1f5f4f">
+<meta name="theme-color" content="#070b14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eef1f9" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-title" content="Finanzen">
 <title>Unsere Finanzen</title>
 <!-- Finanz-App (Martin + Jacqueline). Diese Seite enthält KEINE Zahlen: Sie holt die Cockpits nach der Google-Anmeldung
      direkt aus Google Drive – mit dem Zugang der angemeldeten Person. Google lässt nur Konten an die Dateien, mit denen sie
      geteilt sind (GmbH + Privat: Martin und Jacqueline, Familie-Detail: nur Martin). Quelle: ~/work/finanz-app/web/. -->
 <style>
-:root { color-scheme: light; --page: #eaf0ef; --panel: #fff; --ink: #15202a; --ink-2: #4a5662; --muted: #7a8690; --rule: #dde4e2; --shadow: 0 1px 2px rgba(20,35,40,.05), 0 10px 28px rgba(20,35,40,.08); }
-@media (prefers-color-scheme: dark) { :root { color-scheme: dark; --page: #0e1416; --panel: #162024; --ink: #eef3f2; --ink-2: #b7c3c7; --muted: #8796a0; --rule: #2a383e; --shadow: 0 1px 2px rgba(0,0,0,.35); } }
+/* Design „Night Glass“ (Entscheid Martin 18.10.2026, wie das Privat-Cockpit): dunkel mit Farbflecken und Glas-Kacheln, hell per Systemeinstellung. */
+:root {
+  color-scheme: dark;
+  --page: #070b14; --ink: #eef2ff; --ink-2: #aab5cd; --muted: #7d89a4;
+  --glass: rgba(255,255,255,.055); --glass-2: rgba(255,255,255,.08); --glass-brd: rgba(255,255,255,.12); --panel-solid: #111a2c;
+  --series-1: #5b9dff; --series-2: #34d3c4; --series-3: #a78bfa;
+  --good: #2ee6a6; --warning: #ffb547; --critical: #ff5c7a;
+  --blob-1: #3b5bff; --blob-2: #00c2a8; --blob-3: #9b5cff; --blob-o: .38; --schatten: rgba(0,0,0,.28);
+  --knopf-1: #3b5bff; --knopf-2: #1e8fd6;
+}
+@media (prefers-color-scheme: light) { :root {
+  color-scheme: light;
+  --page: #eef1f9; --ink: #0f172a; --ink-2: #475569; --muted: #64748b;
+  --glass: rgba(255,255,255,.62); --glass-2: rgba(255,255,255,.8); --glass-brd: rgba(255,255,255,.9); --panel-solid: #ffffff;
+  --series-1: #2f6fe4; --series-2: #0fa595; --series-3: #7c5cf0;
+  --good: #12a876; --warning: #e09a14; --critical: #e0405e;
+  --blob-1: #8fb0ff; --blob-2: #7de3d3; --blob-3: #c9b2ff; --blob-o: .55; --schatten: rgba(30,41,80,.12);
+  --knopf-1: #3b5bff; --knopf-2: #2f6fe4;
+} }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--page); color: var(--ink); font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-header { display: flex; align-items: center; gap: 10px; padding: 18px 20px 0; font-weight: 600; color: var(--ink-2); }
-header .ab { margin-left: auto; font: inherit; font-size: 13px; font-weight: 500; color: var(--muted); background: none; border: 0; cursor: pointer; }
-.logo { width: 34px; height: 34px; border-radius: 10px; background: #1f5f4f; display: grid; place-items: center; flex: none; }
-.logo.gross { width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 16px; }
-main { max-width: 560px; margin: 0 auto; padding: 18px 20px 40px; }
-h1 { margin: 6px 0 2px; font-size: 30px; font-weight: 650; letter-spacing: -0.01em; }
+html { background: var(--page); }
+body { margin: 0; min-height: 100vh; background: var(--page); color: var(--ink); font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--series-1); outline-offset: 3px; }
+
+/* Farbflecken im Hintergrund */
+.bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; filter: blur(80px); opacity: var(--blob-o); }
+.bg .b1 { background: var(--blob-1); top: -35vmax; left: -25vmax; }
+.bg .b2 { background: var(--blob-2); top: 30vh; right: -40vmax; opacity: calc(var(--blob-o) * .7); }
+.bg .b3 { background: var(--blob-3); bottom: -40vmax; left: -10vmax; opacity: calc(var(--blob-o) * .8); }
+@media (prefers-reduced-motion: no-preference) { .bg i { animation: schweben 24s ease-in-out infinite alternate; } .bg .b2 { animation-duration: 30s; } .bg .b3 { animation-duration: 36s; } }
+@keyframes schweben { to { transform: translate(6vmax, 4vmax) scale(1.08); } }
+#app { position: relative; z-index: 1; display: flow-root; }
+
+/* Glas */
+.glas, main.mitte { background: var(--glass); border: 1px solid var(--glass-brd); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px var(--schatten); }
+header { display: flex; align-items: center; gap: 10px; max-width: 560px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 16px 0; font-weight: 600; color: var(--ink-2); }
+header .ab { margin-left: auto; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+.logo { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; flex: none; background: linear-gradient(135deg, var(--knopf-1), var(--series-2)); box-shadow: 0 0 18px color-mix(in srgb, var(--knopf-1) 40%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
+.logo.gross { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; box-shadow: 0 0 34px color-mix(in srgb, var(--knopf-1) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
+main { max-width: 560px; margin: 0 auto; padding: 18px 16px calc(40px + env(safe-area-inset-bottom)); }
+h1 { margin: 6px 0 2px; font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
 .lead { margin: 0 0 20px; color: var(--ink-2); font-size: 16px; }
-.karten { display: grid; gap: 14px; }
-.karte { display: grid; grid-template-columns: 8px 1fr; text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--rule); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; padding: 0; cursor: pointer; transition: transform .12s ease; }
-.karte:active { transform: scale(.985); }
-.balken { background: var(--akzent); }
-.inhalt { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px; }
-.kopf { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.kopf b { font-size: 20px; font-weight: 650; }
-.pfeil { font-size: 28px; line-height: 1; color: var(--muted); }
-.unter { color: var(--ink-2); font-size: 14.5px; }
-.st { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; margin-top: 4px; padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--ink); }
-.st i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
-.st.grau { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--ink-2); }
-.zeit { color: var(--muted); font-size: 12.5px; }
-.fuss { margin-top: 26px; color: var(--muted); font-size: 13px; line-height: 1.5; }
-.mitte { text-align: center; padding-top: 70px; }
-.mitte p { color: var(--ink-2); line-height: 1.5; }
-.knopf { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; background: #1f5f4f; color: #fff; padding: 13px 22px; border-radius: 999px; border: 0; font: inherit; font-weight: 600; font-size: 16px; cursor: pointer; text-decoration: none; }
-.lade { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--rule); border-top-color: #1f5f4f; animation: dreh 0.9s linear infinite; margin: 30px auto; }
+
+/* Karten: leuchtende Ampel-Kugel, Text, Pfeil */
+.karten { display: grid; gap: 12px; }
+.karte { display: grid; grid-template-columns: 46px minmax(0, 1fr) 30px; gap: 14px; align-items: center; width: 100%; text-align: left; font: inherit; color: inherit; border-radius: 24px; padding: 16px 14px 16px 16px; cursor: pointer; position: relative; overflow: hidden;
+  border-color: color-mix(in srgb, var(--lc) 30%, var(--glass-brd)); transition: transform .14s ease, border-color .2s ease, box-shadow .2s ease; }
+.karte::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--lc) 14%, transparent), transparent 60%); pointer-events: none; }
+.karte > * { position: relative; }
+.karte:hover { border-color: color-mix(in srgb, var(--lc) 55%, var(--glass-brd)); }
+.karte:active { transform: scale(.98); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 4px 14px var(--schatten), 0 0 26px color-mix(in srgb, var(--lc) 30%, transparent); }
+.orb { width: 42px; height: 42px; border-radius: 50%; justify-self: center; background: radial-gradient(circle at 35% 30%, #fff 0 6%, var(--lc) 40%, color-mix(in srgb, var(--lc) 60%, #000) 100%); box-shadow: 0 0 20px var(--lc), 0 0 50px color-mix(in srgb, var(--lc) 45%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .orb { animation: puls 3.2s ease-in-out infinite; } }
+@keyframes puls { 50% { box-shadow: 0 0 30px var(--lc), 0 0 76px color-mix(in srgb, var(--lc) 55%, transparent); } }
+.inhalt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.inhalt b { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: 19px; font-weight: 700; letter-spacing: -.01em; line-height: 1.25; }
+.unter { color: var(--ink-2); font-size: 14px; line-height: 1.35; }
+.st { align-self: flex-start; margin-top: 4px; padding: 5px 11px; border-radius: 999px; font-size: 13.5px; font-weight: 650; line-height: 1.3; color: var(--ink); background: color-mix(in srgb, var(--lc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--lc) 38%, transparent); }
+.st.grau { color: var(--ink-2); background: var(--glass-2); border-color: var(--glass-brd); }
+.zeit { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.pfeil { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--glass-2); border: 1px solid var(--glass-brd); color: var(--ink-2); transition: transform .2s ease; }
+.karte:hover .pfeil, .karte:active .pfeil { transform: translateX(2px); color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) { .karte { animation: rein .55s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 70ms); } }
+@keyframes rein { from { opacity: 0; transform: translateY(12px); } }
+.fuss { margin-top: 24px; color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; }
+
+/* Anmelden, Laden, Kein Zugriff, Fehler: eine Glas-Kachel in der Mitte */
+main.mitte { max-width: 400px; margin: max(8vh, calc(24px + env(safe-area-inset-top))) auto 40px; width: calc(100% - 32px); text-align: center; padding: 34px 24px 30px; border-radius: 28px; }
+.mitte p { color: var(--ink-2); line-height: 1.5; margin: 10px 0 0; }
+.knopf { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 14px 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); font: inherit; font-weight: 650; font-size: 16px; color: #fff; cursor: pointer; text-decoration: none;
+  background: linear-gradient(135deg, var(--knopf-1), var(--knopf-2)); box-shadow: 0 0 24px color-mix(in srgb, var(--knopf-1) 40%, transparent), inset 0 1px 0 rgba(255,255,255,.3); transition: transform .14s ease; }
+.knopf:active { transform: scale(.97); }
+.lade { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--glass-brd); border-top-color: var(--series-1); margin: 6px auto 4px; filter: drop-shadow(0 0 8px var(--series-1)); animation: dreh .9s linear infinite; }
 @keyframes dreh { to { transform: rotate(360deg); } }
+
+/* Cockpit-Ansicht + Glas-Knopf „← Übersicht“ */
 #ansicht { position: fixed; inset: 0; background: var(--page); display: none; z-index: 10; }
 #ansicht iframe { width: 100%; height: 100%; border: 0; display: block; }
-#zurueck { position: fixed; left: 14px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 11; background: #1f5f4f; color: #fff; font: 600 15px system-ui, -apple-system, sans-serif; padding: 11px 18px; border-radius: 999px; border: 0; box-shadow: 0 6px 18px rgba(0,0,0,.28); cursor: pointer; display: none; }
+#zurueck { position: fixed; left: 14px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 11; display: none; padding: 11px 18px; border-radius: 999px; cursor: pointer; font: 600 15px "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--ink);
+  background: color-mix(in srgb, var(--panel-solid) 72%, transparent); border: 1px solid var(--glass-brd); backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.35); }
+#zurueck:active { transform: scale(.97); }
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
 <div id="app"></div>
 <div id="ansicht"><iframe id="rahmen" sandbox="allow-scripts" title="Cockpit"></iframe></div>
 <button id="zurueck" type="button">← Übersicht</button>
@@ -57,11 +108,13 @@ const DATEIEN = {"gmbh":"1vWrb4rfI3CJynRNHRHhr49xvrBxMwylF","privat":"1EkZXE9-Dw
 const SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 const ZIEL = location.origin + location.pathname;
 const ANSICHTEN = [
-  { key: "gmbh", titel: "AlpenVital GmbH", unter: "Firmenkonto, Bonus, wer schuldet wem", akzent: "#1f5f4f" },
-  { key: "privat", titel: "Privat – Überblick", unter: "Haushalt, Monat, Reisekasse, Vermögen", akzent: "#2a78d6" },
-  { key: "familie", titel: "Familie – Detail", unter: "Zahlungen, Konten, Deckung", akzent: "#8b5cf6" },
+  { key: "gmbh", titel: "AlpenVital GmbH", unter: "Firmenkonto, Bonus, wer schuldet wem", akzent: "var(--series-2)" },
+  { key: "privat", titel: "Privat – Überblick", unter: "Haushalt, Monat, Reisekasse, Vermögen", akzent: "var(--series-1)" },
+  { key: "familie", titel: "Familie – Detail", unter: "Zahlungen, Konten, Deckung", akzent: "var(--series-3)" },
 ];
-const AMPEL = { rot: "#d03b3b", gelb: "#eda100", gruen: "#1baf7a" };
+// Ampel-Farben als Design-Farben (passen sich hell/dunkel an); nur diese festen Werte kommen in style="…"
+const AMPEL = { rot: "var(--critical)", gelb: "var(--warning)", gruen: "var(--good)" };
+const PFEIL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 const LOGO = '<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 13l4.5-8 3 5 2-3 3.5 6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -158,14 +211,14 @@ async function laden() {
 }
 function gruss() { const h = new Date().getHours(); return h < 11 ? "Guten Morgen" : h < 18 ? "Hallo" : "Guten Abend"; }
 function zeigeStart(name, karten) {
-  const k = karten.map((c) => {
+  const k = karten.map((c, i) => {
     const farbe = c.lage ? AMPEL[c.lage.farbe] || c.akzent : c.akzent;
-    const status = c.lage ? `<span class="st" style="--c:${farbe}"><i></i>${esc(c.lage.titel)}</span>` : `<span class="st grau">Alle Details – Zahlungen, Konten, Deckung</span>`;
-    return `<button class="karte" type="button" data-v="${c.key}" style="--akzent:${farbe}"><span class="balken"></span><span class="inhalt">
-      <span class="kopf"><b>${esc(c.titel)}</b><span class="pfeil">›</span></span><span class="unter">${esc(c.unter)}</span>${status}
-      <span class="zeit">aktualisiert ${esc(wann(c.zeit))}</span></span></button>`;
+    const status = c.lage ? `<span class="st">${esc(c.lage.titel)}</span>` : `<span class="st grau">Alle Details – Zahlungen, Konten, Deckung</span>`;
+    return `<button class="karte glas" type="button" data-v="${c.key}" style="--lc:${farbe};--i:${i}"><span class="orb" aria-hidden="true"></span><span class="inhalt">
+      <b>${esc(c.titel)}</b><span class="unter">${esc(c.unter)}</span>${status}
+      <span class="zeit">aktualisiert ${esc(wann(c.zeit))}</span></span><span class="pfeil">${PFEIL}</span></button>`;
   }).join("");
-  app.innerHTML = `<header><div class="logo">${LOGO}</div><span>Familie Schröder</span><button class="ab" id="ab" type="button">Abmelden</button></header>
+  app.innerHTML = `<header><div class="logo">${LOGO}</div><span>Familie Schröder</span><button class="ab glas" id="ab" type="button">Abmelden</button></header>
     <main><h1>${esc(gruss())}${name ? ", " + esc(name) : ""}</h1><p class="lead">Was möchtest du dir anschauen?</p><nav class="karten">${k}</nav>
     <p class="fuss">Nur für Martin und Jacqueline. Die Zahlen kommen aus euren Cockpits und werden bei jedem Cockpit-Lauf aktualisiert.</p></main>`;
   $("ab").onclick = abmelden;
