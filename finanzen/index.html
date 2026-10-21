@@ -109,10 +109,12 @@ main.mitte { max-width: 400px; margin: max(8vh, calc(24px + env(safe-area-inset-
 <script>
 "use strict";
 const CLIENT_ID = "804212958937-08bgi8qtmuk91et8ao90g8q9ubp5sfng.apps.googleusercontent.com";
-const DATEIEN = {"gmbh":"1vWrb4rfI3CJynRNHRHhr49xvrBxMwylF","privat":"1EkZXE9-DwcMksjD-wD3pxPPBJJpS8L8Q","familie":"1U824B2M10KjZhwwMfZ1B0P8yEhDJyvqn"};
+const DATEIEN = {"gmbh":"1vWrb4rfI3CJynRNHRHhr49xvrBxMwylF","privat":"1EkZXE9-DwcMksjD-wD3pxPPBJJpS8L8Q","familie":"1U824B2M10KjZhwwMfZ1B0P8yEhDJyvqn","assistenz":"1NvDa0Ydx6-XW_FioMZxoMgRVeyfpbz3B"};
 const SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 const ZIEL = location.origin + location.pathname;
+// Assistenz zuoberst (Martin 21.10.2026); ohne Drive-Freigabe (Jacqueline) erscheint die Karte nicht.
 const ANSICHTEN = [
+  { key: "assistenz", titel: "Assistenz", unter: "Was du entscheiden, freigeben oder erledigen musst", akzent: "var(--series-3)" },
   { key: "gmbh", titel: "AlpenVital GmbH", unter: "Firmenkonto, Bonus, wer schuldet wem", akzent: "var(--series-2)" },
   { key: "privat", titel: "Privat – Überblick", unter: "Haushalt, Monat, Reisekasse, Vermögen", akzent: "var(--series-1)" },
   { key: "familie", titel: "Familie – Detail", unter: "Zahlungen, Konten, Deckung", akzent: "var(--series-3)" },
